@@ -74,16 +74,10 @@ RSpec.describe Duranged::Occurrence do
   end
 
   describe '#to_s' do
-    it "returns a string matching 'OCCURRENCES every INTERVAL'" do
-      expect(subject.to_s).to eq "#{subject.occurrences_string} every #{subject.interval.to_s}"
-    end
+    subject { Duranged::Occurrence.new(3, 1.day, 10.minutes) }
 
-    context 'when interval is 0' do
-      subject { Duranged::Occurrence.new(3, 0) }
-
-      it 'returns the occurrences string' do
-        expect(subject.to_s).to eq subject.occurrences_string
-      end
+    it "returns a string matching 'OCCURRENCES for DURATION every INTERVAL'" do
+      expect(subject.to_s).to eq "#{subject.occurrences_string} for #{subject.duration.to_s} every #{subject.interval.to_s}"
     end
 
     context 'when occurrences is 0' do
@@ -91,6 +85,42 @@ RSpec.describe Duranged::Occurrence do
 
       it 'returns the occurrences_string' do
         expect(subject.to_s).to eq subject.occurrences_string
+      end
+
+      it "returns 'never'" do
+        expect(subject.to_s).to eq 'never'
+      end
+    end
+
+    context 'when interval is 0' do
+      subject { Duranged::Occurrence.new(3, 0, 30.seconds) }
+
+      it "returns a string matching 'OCCURRENCES for DURATION'" do
+        expect(subject.to_s).to eq "#{subject.occurrences_string} for #{subject.duration.to_s}"
+      end
+
+      context 'when duration is 0' do
+        subject { Duranged::Occurrence.new(3) }
+
+        it 'returns the occurrences string' do
+          expect(subject.to_s).to eq subject.occurrences_string
+        end
+      end
+    end
+
+    context 'when duration is 0' do
+      subject { Duranged::Occurrence.new(3, 1.day) }
+
+      it "returns a string matching 'OCCURRENCES every INTERVAL'" do
+        expect(subject.to_s).to eq "#{subject.occurrences_string} every #{subject.interval.to_s}"
+      end
+
+      context 'when interval is 0' do
+        subject { Duranged::Occurrence.new(3) }
+
+        it 'returns the occurrences string' do
+          expect(subject.to_s).to eq subject.occurrences_string
+        end
       end
     end
   end
