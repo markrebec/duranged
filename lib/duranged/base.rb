@@ -106,20 +106,27 @@ module Duranged
     def strfdur(format)
       str = format.to_s
 
-      # only replaces if the value is > 0, otherwise blank
-      # :years(%Y years, ):months(%N months, )%D
+      # :years(%Y years, ):months(%N months, )%D :days
       PARTS.each do |part|
-        while matches = str.match(/:#{part}(\((.+)\))/) do
-          matched = ''
-          depth = 0
-          matches[2].chars.to_a.each do |char|
-            depth += 1 if char == '('
-            depth -= 1 if char == ')'
-            break if depth == -1
-            matched += char
+        while matches = str.match(/:(#{part})(\((.+)\))?/i) do
+          if matches[3]
+            # only replaces if the value is > 0, otherwise blank
+            matched = ''
+            depth = 0
+            matches[3].chars.to_a.each do |char|
+              depth += 1 if char == '('
+              depth -= 1 if char == ')'
+              break if depth == -1
+              matched += char
+            end
+            value = send(part) > 0 ? strfdur(matched.dup) : ''
+            str.gsub!(":#{part}(#{matched})", value)
+          else
+            # if no nested format was passed, replace with a singular
+            # or plural part name as appropriate
+            value = send(part) == 1 ? matches[1].to_s.singularize : matches[1].to_s
+            str.gsub!(matches[0], value)
           end
-          value = send(part) > 0 ? strfdur(matched.dup) : ''
-          str.gsub!(":#{part}(#{matched})", value)
         end
       end
 
