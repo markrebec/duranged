@@ -42,9 +42,8 @@ module Duranged
     end
 
     def +(other)
-      if other.is_a?(Range)
-        raise ArgumentError, "cannot add a Duranged::Range to a #{self.class}"
-      elsif other.is_a?(Duration) || other.is_a?(Interval)
+      if other.is_a?(Duration) || other.is_a?(Interval)
+        Duranged.logger.warn "Warning: You are adding a #{other.class.name} to a #{self.class.name}, which will result in a #{self.class.name}. If you would like a #{other.class.name} object to be returned you must add your #{self.class.name} to your #{other.class.name} instead." if other.is_a?(Range)
         self.class.new(value + other.value)
       elsif other.is_a?(Integer)
         self.class.new(value + other)
@@ -54,7 +53,8 @@ module Duranged
     end
 
     def -(other)
-      if other.respond_to?(:value)
+      if other.is_a?(Duration) || other.is_a?(Interval)
+        Duranged.logger.warn "Warning: You are subtracting a #{other.class.name} from a #{self.class.name}, which will result in a #{self.class.name}. If you would like a #{other.class.name} object to be returned you must subtract your #{self.class.name} from your #{other.class.name} instead." if other.is_a?(Range)
         self.class.new(value - other.value)
       elsif other.is_a?(Integer)
         self.class.new(value - other)

@@ -80,9 +80,9 @@ module Duranged
 
     def to_s
       if same_day?
-        "#{start_at("#{Duranged.configuration.formats.date} #{Duranged.configuration.formats.time}")} to #{end_at("#{Duranged.configuration.formats.time}")}"
+        "#{start_at("#{Duranged.formats.date} #{Duranged.formats.time}")} to #{end_at("#{Duranged.formats.time}")}"
       else
-        "#{start_at("#{Duranged.configuration.formats.date} #{Duranged.configuration.formats.time}")} (#{super()})"
+        "#{start_at("#{Duranged.formats.date} #{Duranged.formats.time}")} (#{super()})"
       end
     end
 

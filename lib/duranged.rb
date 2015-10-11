@@ -29,6 +29,14 @@ module Duranged
     config.logger = ActiveSupport::Logger.new(STDOUT)
   end
 
+  def self.formats
+    configuration.formats
+  end
+
+  def self.logger
+    configuration.logger
+  end
+
   def self.interval(interval)
     Interval.new(interval)
   end
