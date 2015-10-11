@@ -4,27 +4,39 @@ RSpec.shared_examples "a hash method" do |method|
   end
 end
 
-RSpec.shared_examples "a format conversion" do |period, formatter, printf_str|
+RSpec.shared_examples "a format conversion" do |period, formatter|
   context "using the #{period} formatter %#{formatter}" do
     it 'returns the formatted string' do
-      expect(subject.strfdur("%#{formatter}")).to eq printf_str % subject.send(period)
+      expect(subject.strfdur("%#{formatter}")).to eq subject.send(:zero_pad, subject.send(period)) % subject.send(period)
     end
     
     context 'with a padding modifier' do
       it 'uses the provided padding' do
-        expect(subject.strfdur("%5#{formatter}")).to eq printf_str.gsub('2','5') % subject.send(period)
+        expect(subject.strfdur("%5#{formatter}")).to eq subject.send(:zero_pad, subject.send(period), 5) % subject.send(period)
       end
 
       context 'with a padding negator' do
         it 'strips all padding' do
-          expect(subject.strfdur("%-5#{formatter}")).to eq (printf_str.gsub('2','5') % subject.send(period)).to_i.to_s.lstrip
+          expect(subject.strfdur("%-5#{formatter}")).to eq (subject.send(:zero_pad, subject.send(period), 5) % subject.send(period)).to_i.to_s.lstrip
         end
       end
     end
 
     context 'with a padding negator' do
       it 'strips all padding' do
-        expect(subject.strfdur("%-#{formatter}")).to eq (printf_str % subject.send(period)).to_i.to_s.lstrip
+        expect(subject.strfdur("%-#{formatter}")).to eq (subject.send(:zero_pad, subject.send(period)) % subject.send(period)).to_i.to_s.lstrip
+      end
+    end
+
+    context 'when using the space padding flag' do
+      it 'returns the formatted string' do
+        expect(subject.strfdur("%_#{formatter}")).to eq subject.send(:space_pad, subject.send(period)) % subject.send(period)
+      end
+
+      context 'with a padding modifier' do
+        it 'uses the provided padding' do
+          expect(subject.strfdur("%_5#{formatter}")).to eq subject.send(:space_pad, subject.send(period), 5) % subject.send(period)
+        end
       end
     end
   end
@@ -194,17 +206,18 @@ RSpec.shared_examples "the base class" do |klass|
     end
 
     context 'when a format is specified' do
-      it_behaves_like "a format conversion", :seconds, 'S', '%02d'
-      it_behaves_like "a format conversion", :seconds, 's', '%2d'
-      it_behaves_like "a format conversion", :minutes, 'M', '%02d'
-      it_behaves_like "a format conversion", :minutes, 'm', '%2d'
-      it_behaves_like "a format conversion", :hours, 'H', '%02d'
-      it_behaves_like "a format conversion", :hours, 'h', '%2d'
-      it_behaves_like "a format conversion", :days, 'D', '%02d'
-      it_behaves_like "a format conversion", :days, 'd', '%2d'
+      it_behaves_like "a format conversion", :seconds, 's'
+      it_behaves_like "a format conversion", :minutes, 'm'
+      it_behaves_like "a format conversion", :hours, 'h'
+      it_behaves_like "a format conversion", :days, 'd'
+      it_behaves_like "a format conversion", :days_after_weeks, 'D'
+      it_behaves_like "a format conversion", :weeks, 'w'
+      it_behaves_like "a format conversion", :months, 'M'
+      it_behaves_like "a format conversion", :years, 'y'
 
-      it_behaves_like "a complex format string", (3.days + 1.hour + 5.minutes + 30.seconds), '%D:%H:%M:%S', '03:01:05:30'
-      it_behaves_like "a complex format string", (5.hours + 5.minutes), '%h hours and %M minutes', ' 5 hours and 05 minutes'
+
+      it_behaves_like "a complex format string", (3.days + 1.hour + 5.minutes + 30.seconds), '%d:%h:%m:%s', '03:01:05:30'
+      it_behaves_like "a complex format string", (5.hours + 5.minutes), '%_h hours and %m minutes', ' 5 hours and 05 minutes'
       it_behaves_like "a complex format string", (3.days + 1.hour + 5.minutes + 30.seconds), '%-d days, %-h hour, %-m minutes, %-s seconds', '3 days, 1 hour, 5 minutes, 30 seconds'
     end
   end

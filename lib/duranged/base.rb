@@ -4,22 +4,14 @@ module Duranged
     attr_reader :value
 
     PARTS = [:years, :months, :weeks, :days_after_weeks, :days, :hours, :minutes, :seconds]
-    FORMATTERS = { 'S' => -> (pad) { zero_pad seconds, pad },
-                   's' => -> (pad) { space_pad seconds, pad },
-                   'M' => -> (pad) { zero_pad minutes, pad },
-                   'm' => -> (pad) { space_pad minutes, pad },
-                   'H' => -> (pad) { zero_pad hours, pad },
-                   'h' => -> (pad) { space_pad hours, pad },
-                   'D' => -> (pad) { zero_pad days, pad },
-                   'd' => -> (pad) { space_pad days, pad },
-                   'E' => -> (pad) { zero_pad days_after_weeks, pad },
-                   'e' => -> (pad) { space_pad days_after_weeks, pad },
-                   'W' => -> (pad) { zero_pad weeks, pad },
-                   'w' => -> (pad) { space_pad weeks, pad },
-                   'N' => -> (pad) { zero_pad months, pad },
-                   'n' => -> (pad) { space_pad months, pad },
-                   'Y' => -> (pad) { zero_pad years, pad },
-                   'y' => -> (pad) { space_pad years, pad } }
+    FORMATTERS = { 's' => -> (pad,with) { pad_value seconds, pad, with },
+                   'm' => -> (pad,with) { pad_value minutes, pad, with },
+                   'h' => -> (pad,with) { pad_value hours, pad, with },
+                   'd' => -> (pad,with) { pad_value days, pad, with },
+                   'D' => -> (pad,with) { pad_value days_after_weeks, pad, with },
+                   'w' => -> (pad,with) { pad_value weeks, pad, with },
+                   'M' => -> (pad,with) { pad_value months, pad, with },
+                   'y' => -> (pad,with) { pad_value years, pad, with } }
 
     class << self
       def dump(obj)
@@ -132,9 +124,10 @@ module Duranged
       end
 
       FORMATTERS.each do |conversion, block|
-        while matches = str.match(/%(-)?([0-9]+)?(#{conversion})/) do
-          value = instance_exec(matches[2] || 2, &block)
-          value = value.to_i.to_s.lstrip unless matches[1].nil?
+        while matches = str.match(/%([-_])?([0-9]+)?(#{conversion})/) do
+          pad_with = matches[1] == '_' ? :space : :zero
+          value = instance_exec(matches[2] || 2, pad_with, &block)
+          value = value.to_i.to_s.lstrip if matches[1] == '-'
 
           str.gsub!(matches[0], value)
         end
@@ -165,6 +158,10 @@ module Duranged
 
     def parse_hash(hash)
       hash.sum { |k,v| v.to_i.send(k.to_sym) }
+    end
+
+    def pad_value(value, pad=2, with=:zero)
+      send("#{with}_pad".to_sym, value, pad)
     end
 
     def zero_pad(value, pad=2)
