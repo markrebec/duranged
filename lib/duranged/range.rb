@@ -37,13 +37,13 @@ module Duranged
     end
 
     def start_at(format=nil)
-      format.nil? ? @start_at : @start_at.strftime(format)
+      format.nil? ? @start_at : @start_at.strftime(format).strip
     end
     alias_method :start_date, :start_at
     alias_method :start_time, :start_at
 
     def end_at(format=nil)
-      format.nil? ? @end_at : @end_at.strftime(format)
+      format.nil? ? @end_at : @end_at.strftime(format).strip
     end
     alias_method :end_date, :end_at
     alias_method :end_time, :end_at
@@ -58,22 +58,34 @@ module Duranged
     end
     alias_method :to_h, :as_json
 
-    def to_s(format='%l:%M%P')
+    def to_s
       if same_day?
-        "#{start_at(format)} to #{end_at(format)}"
+        "#{start_at('%b. %-d %Y %-l:%M%P')} to #{end_at('%-l:%M%P')}"
       else
-        "#{start_at(format)} (#{super()})"
+        "#{start_at('%b. %-d %Y %-l:%M%P')} (#{super()})"
       end
+    end
+
+    def strfrange(format)
+      str = format.to_s
+
+      while matches = str.match(/:(start_at|end_at|)\((([^\)]+))\)/) do
+        str.gsub!(matches[0], send(matches[1], matches[2]))
+      end
+
+      while matches = str.match(/:duration\(([^\)]+)\)/) do
+        str.gsub!(matches[0], strfdur(matches[1]))
+      end
+
+      str
     end
 
     def call
       to_s
     end
 
-    protected
-
     def same_day?
-      days? == 0 && start_at('%j') == end_at('%j')
+      start_at('%j') == end_at('%j')
     end
   end
 end

@@ -124,4 +124,70 @@ RSpec.describe Duranged::Occurrence do
       end
     end
   end
+
+  describe '#strfocc' do
+    context 'using the :occurence token' do
+      it 'returns the formatted string' do
+        expect(subject.strfocc(':occurrence')).to eq subject.occurrences.to_s
+      end
+    end
+
+    context 'using the :occurences token' do
+      it 'returns the formatted string' do
+        expect(subject.strfocc(':occurrences')).to eq subject.occurrences.to_s
+      end
+    end
+
+    context 'using the :duration token' do
+      it 'requires nested formatters' do
+        expect(subject.strfocc(':duration')).to eq ':duration'
+      end
+
+      it 'returns the formatted string' do
+        expect(subject.strfocc(':duration(%D:%H:%M:%S)')).to eq subject.duration.strfdur('%D:%H:%M:%S')
+      end
+    end
+
+    context 'using the :interval token' do
+      it 'requires nested formatters' do
+        expect(subject.strfocc(':interval')).to eq ':interval'
+      end
+
+      it 'returns the formatted string' do
+        expect(subject.strfocc(':interval(%D:%H:%M:%S)')).to eq subject.interval.strfdur('%D:%H:%M:%S')
+      end
+    end
+
+    context 'using the :range token' do
+      subject { Duranged::Occurrence.new(5, 10.minutes, 30.seconds, Time.now, Time.now + 1.hour) }
+
+      context 'without nested formatters' do
+        it 'returns the default formatted range string' do
+          expect(subject.strfocc(':range')).to eq subject.range.to_s
+        end
+      end
+
+      context 'with nested formatters' do
+        it 'returns the formatted string' do
+          expect(subject.strfocc(':range(:start_at(%l:%M%P) :end_at(%l:%M%P) :duration(%D%H%M%S))')).to eq "#{subject.range.start_at('%l:%M%P')} #{subject.range.end_at('%l:%M%P')} #{subject.range.strfdur('%D%H%M%S')}"
+        end
+      end
+    end
+
+    context "using complex format string ':occurrences times for :duration(%-s) seconds every :interval(%-m) minutes between :range(:start_at(%l:%M%P) and :end_at(%l:%M%P) (:duration(%-m minutes)))'" do
+      subject { Duranged::Occurrence.new(3, 5.minutes, 30.seconds, DateTime.parse('2015-01-01T06:00:00-07:00'), DateTime.parse('2015-01-01T06:20:00-07:00')) }
+
+      it "returns '3 times for 30 seconds every 5 minutes between 6:00am and 6:20am'" do
+        expect(subject.strfocc(':occurrences times for :duration(%-s) seconds every :interval(%-m) minutes between :range(:start_at(%l:%M%P) and :end_at(%l:%M%P) (:duration(%-m minutes)))')).to eq '3 times for 30 seconds every 5 minutes between 6:00am and 6:20am (20 minutes)'
+      end
+    end
+
+    context "using complex format string 'between :range(:start_at(%l:%M%P) and :end_at(%l:%M%P) (:duration(%-m minutes))), do something :occurrences times for :duration(%-s) seconds every :interval(%-m) minutes'" do
+      subject { Duranged::Occurrence.new(3, 5.minutes, 30.seconds, DateTime.parse('2015-01-01T06:00:00-07:00'), DateTime.parse('2015-01-01T06:20:00-07:00')) }
+
+      it "returns 'between 6:00am and 6:20am (20 minutes), do something 3 times for 30 seconds every 5 minutes'" do
+        expect(subject.strfocc('between :range(:start_at(%l:%M%P) and :end_at(%l:%M%P) (:duration(%-m minutes))), do something :occurrences times for :duration(%-s) seconds every :interval(%-m) minutes')).to eq 'between 6:00am and 6:20am (20 minutes), do something 3 times for 30 seconds every 5 minutes'
+      end
+    end
+  end
 end

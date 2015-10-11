@@ -49,18 +49,22 @@ module Duranged
     alias_method :to_h, :as_json
 
     def to_s
-      return ChronicDuration.output(value, format: :long, joiner: ', ').to_s
+      ChronicDuration.output(value, format: :long, joiner: ', ').to_s
+    end
 
-      #parts = PARTS.map do |part|
-      #  value = send("#{part}?")
-      #  maybe_pluralize(value, part.to_s) if value > 0
-      #end.compact
+    def strfdur(format)
+      str = format.to_s
 
-      #return '' if parts.empty?
-      #return parts.first if parts.count == 1
+      Duranged::CONVERSIONS.each do |conversion, block|
+        while matches = str.match(/%(-)?([0-9]+)?(#{conversion})/) do
+          value = instance_exec(matches[2] || 2, &block)
+          value = value.to_i.to_s.lstrip unless matches[1].nil?
 
-      #last = parts.slice!(-1)
-      #[parts.join(', '), last].join(' and ')
+          str.gsub!(matches[0], value)
+        end
+      end
+
+      str
     end
 
     def to_i
@@ -83,12 +87,16 @@ module Duranged
 
     protected
 
-    def maybe_pluralize(cnt, str)
-      "#{cnt} #{cnt == 1 ? str.singularize : str.pluralize}"
-    end
-
     def parse_hash(hash)
       hash.sum { |k,v| v.to_i.send(k.to_sym) }
+    end
+
+    def zero_pad(value, pad=2)
+      "%0#{pad}d" % value
+    end
+
+    def space_pad(value, pad=2)
+      "%#{pad}d" % value
     end
   end
 end

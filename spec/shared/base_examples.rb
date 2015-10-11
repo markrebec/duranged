@@ -4,9 +4,39 @@ RSpec.shared_examples "a hash method" do |method|
   end
 end
 
-RSpec.shared_examples "a string method" do |method|
-  it 'returns a string representation of the value' do
-    expect(subject.send(method)).to eq '1 day, 2 minutes, 2 seconds'
+RSpec.shared_examples "a format conversion" do |period, formatter, printf_str|
+  context "using the #{period} formatter %#{formatter}" do
+    it 'returns the formatted string' do
+      expect(subject.strfdur("%#{formatter}")).to eq printf_str % subject.send("#{period}?".to_sym)
+    end
+    
+    context 'with a padding modifier' do
+      it 'uses the provided padding' do
+        expect(subject.strfdur("%5#{formatter}")).to eq printf_str.gsub('2','5') % subject.send("#{period}?".to_sym)
+      end
+
+      context 'with a padding negator' do
+        it 'strips all padding' do
+          expect(subject.strfdur("%-5#{formatter}")).to eq (printf_str.gsub('2','5') % subject.send("#{period}?".to_sym)).to_i.to_s.lstrip
+        end
+      end
+    end
+
+    context 'with a padding negator' do
+      it 'strips all padding' do
+        expect(subject.strfdur("%-#{formatter}")).to eq (printf_str % subject.send("#{period}?".to_sym)).to_i.to_s.lstrip
+      end
+    end
+  end
+end
+
+RSpec.shared_examples "a complex format string" do |duration, formatter, string|
+  context "using complex formatter '#{formatter}'" do
+    subject { Duranged::Duration.new(duration) }
+
+    it "returns '#{string}'" do
+      expect(subject.strfdur(formatter)).to eq string
+    end
   end
 end
 
@@ -83,6 +113,33 @@ RSpec.shared_examples "the base class" do |klass|
   end
 
   describe '#to_s' do
-    it_behaves_like "a string method", :to_s
+    context 'when no format is specified' do
+      it 'returns a string using the default format' do
+        expect(subject.to_s).to eq '1 day, 2 minutes, 2 seconds'
+      end
+    end
+  end
+
+  describe '#strfdur' do
+    context 'when no format is provided' do
+      it 'raises an ArgumentError' do
+        expect { subject.strfdur }.to raise_error(ArgumentError)
+      end
+    end
+
+    context 'when a format is specified' do
+      it_behaves_like "a format conversion", :seconds, 'S', '%02d'
+      it_behaves_like "a format conversion", :seconds, 's', '%2d'
+      it_behaves_like "a format conversion", :minutes, 'M', '%02d'
+      it_behaves_like "a format conversion", :minutes, 'm', '%2d'
+      it_behaves_like "a format conversion", :hours, 'H', '%02d'
+      it_behaves_like "a format conversion", :hours, 'h', '%2d'
+      it_behaves_like "a format conversion", :days, 'D', '%02d'
+      it_behaves_like "a format conversion", :days, 'd', '%2d'
+
+      it_behaves_like "a complex format string", (3.days + 1.hour + 5.minutes + 30.seconds), '%D:%H:%M:%S', '03:01:05:30'
+      it_behaves_like "a complex format string", (5.hours + 5.minutes), '%h hours and %M minutes', ' 5 hours and 05 minutes'
+      it_behaves_like "a complex format string", (3.days + 1.hour + 5.minutes + 30.seconds), '%-d days, %-h hour, %-m minutes, %-s seconds', '3 days, 1 hour, 5 minutes, 30 seconds'
+    end
   end
 end
