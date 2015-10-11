@@ -12,16 +12,6 @@ require 'duranged/occurrence'
 require 'duranged/range'
 
 module Duranged
-  PARTS = [:days, :hours, :minutes, :seconds]
-  CONVERSIONS = { 'S' => -> (pad) { zero_pad seconds?, pad },
-                  's' => -> (pad) { space_pad seconds?, pad },
-                  'M' => -> (pad) { zero_pad minutes?, pad },
-                  'm' => -> (pad) { space_pad minutes?, pad },
-                  'H' => -> (pad) { zero_pad hours?, pad },
-                  'h' => -> (pad) { space_pad hours?, pad },
-                  'D' => -> (pad) { zero_pad days?, pad },
-                  'd' => -> (pad) { space_pad days?, pad } }
-
   include Canfig::Module
 
   configure do |config|

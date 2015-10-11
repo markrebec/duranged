@@ -3,6 +3,16 @@ module Duranged
     include Comparable
     attr_reader :value
 
+    PARTS = [:days, :hours, :minutes, :seconds]
+    FORMATTERS = { 'S' => -> (pad) { zero_pad seconds?, pad },
+                   's' => -> (pad) { space_pad seconds?, pad },
+                   'M' => -> (pad) { zero_pad minutes?, pad },
+                   'm' => -> (pad) { space_pad minutes?, pad },
+                   'H' => -> (pad) { zero_pad hours?, pad },
+                   'h' => -> (pad) { space_pad hours?, pad },
+                   'D' => -> (pad) { zero_pad days?, pad },
+                   'd' => -> (pad) { space_pad days?, pad } }
+
     class << self
       def dump(obj)
         return if obj.nil?
@@ -80,7 +90,7 @@ module Duranged
     def strfdur(format)
       str = format.to_s
 
-      Duranged::CONVERSIONS.each do |conversion, block|
+      FORMATTERS.each do |conversion, block|
         while matches = str.match(/%(-)?([0-9]+)?(#{conversion})/) do
           value = instance_exec(matches[2] || 2, &block)
           value = value.to_i.to_s.lstrip unless matches[1].nil?
