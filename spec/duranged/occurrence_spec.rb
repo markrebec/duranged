@@ -52,7 +52,23 @@ RSpec.describe Duranged::Occurrence do
       subject { Duranged::Occurrence.new }
 
       it 'sets interval to 0' do
-        expect(subject.interval).to eq 0
+        expect(subject.interval).to eq nil
+      end
+    end
+
+    context 'with duration' do
+      subject { Duranged::Occurrence.new(5, 36.hours, 20.minutes) }
+
+      it 'sets duration' do
+        expect(subject.duration).to eq 20.minutes
+      end
+    end
+
+    context 'without duration' do
+      subject { Duranged::Occurrence.new }
+
+      it 'sets duration to 0' do
+        expect(subject.duration).to eq nil
       end
     end
   end
@@ -94,7 +110,7 @@ RSpec.describe Duranged::Occurrence do
   describe '#as_json' do
     context 'without a range' do
       it 'returns an occurrences hash' do
-        expect(subject.as_json).to eq({occurrences: subject.occurrences, duration: subject.duration.as_json, interval: subject.interval.as_json})
+        expect(subject.as_json).to eq({occurrences: subject.occurrences, interval: subject.interval.as_json})
       end
     end
 
@@ -173,12 +189,14 @@ RSpec.describe Duranged::Occurrence do
     end
 
     context 'using the :duration token' do
+      subject { Duranged::Occurrence.new(5, 10.minutes, 30.seconds) }
+
       it 'requires nested formatters' do
         expect(subject.strfocc(':duration')).to eq ':duration'
       end
 
       it 'returns the formatted string' do
-        expect(subject.strfocc(':duration(%D:%H:%M:%S)')).to eq subject.duration.strfdur('%D:%H:%M:%S')
+        expect(subject.strfocc(':duration(%d:%h:%m:%s)')).to eq subject.duration.strfdur('%d:%h:%m:%s')
       end
     end
 
@@ -188,7 +206,7 @@ RSpec.describe Duranged::Occurrence do
       end
 
       it 'returns the formatted string' do
-        expect(subject.strfocc(':interval(%D:%H:%M:%S)')).to eq subject.interval.strfdur('%D:%H:%M:%S')
+        expect(subject.strfocc(':interval(%d:%h:%m:%s)')).to eq subject.interval.strfdur('%d:%h:%m:%s')
       end
     end
 

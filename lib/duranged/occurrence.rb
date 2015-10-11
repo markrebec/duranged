@@ -23,10 +23,15 @@ module Duranged
         @occurrences = occurrences.to_i
       end
 
-      @interval = Interval.new(interval)
-      @duration = Duration.new(duration)
-      if range_start.present? || range_end_or_duration.present?
-        @range = Range.new(*[range_start, range_end_or_duration].compact)
+      @interval = Interval.new(interval) if interval
+      @duration = Duration.new(duration) if duration
+      if range_start.present?
+        if range_end_or_duration.nil?
+          range_end_or_duration = range_start.to_datetime
+          range_end_or_duration = range_end_or_duration + (@interval.value * (occurrences - 1)).seconds if @interval
+          range_end_or_duration = range_end_or_duration + (@duration.value * occurrences).seconds if @duration
+        end
+        @range = Range.new(range_start, range_end_or_duration)
       end
     end
 
@@ -57,12 +62,12 @@ module Duranged
 
       str = [occurrences_string]
 
-      if duration > 0
+      if duration.present? && duration > 0
         str << "for"
         str << duration.to_s
       end
 
-      if interval > 0
+      if interval.present? && interval > 0
         str << "every"
         str << interval.to_s
       end
@@ -107,7 +112,9 @@ module Duranged
 
       if duration || interval
         while matches = str.match(/:(duration|interval)(\(([^\)]+)\))/) do
-          str.gsub!(matches[0], send(matches[1]).strfdur(matches[3]))
+          matched = send(matches[1])
+          value = matched.nil? ? '' : matched.strfdur(matches[3])
+          str.gsub!(matches[0], value)
         end
       end
 
