@@ -41,12 +41,37 @@ module Duranged
       value % 60
     end
 
+    def +(other)
+      if other.is_a?(Range)
+        raise ArgumentError, "cannot add a Duranged::Range to a #{self.class}"
+      elsif other.is_a?(Duration) || other.is_a?(Interval)
+        self.class.new(value + other.value)
+      elsif other.is_a?(Integer)
+        self.class.new(value + other)
+      else
+        raise ArgumentError, "value must be an Integer, Duranged::Duration or Duranged::Interval"
+      end
+    end
+
+    def -(other)
+      if other.respond_to?(:value)
+        self.class.new(value - other.value)
+      elsif other.is_a?(Integer)
+        self.class.new(value - other)
+      else
+        raise ArgumentError, "value must be an Integer, Duranged::Duration or Duranged::Interval"
+      end
+    end
+
     def as_json(options=nil)
+      value
+    end
+
+    def to_h
       PARTS.map do |part|
         [part, send("#{part}?")]
       end.to_h
     end
-    alias_method :to_h, :as_json
 
     def to_s
       ChronicDuration.output(value, format: :long, joiner: ', ').to_s

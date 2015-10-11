@@ -48,13 +48,33 @@ module Duranged
     alias_method :end_date, :end_at
     alias_method :end_time, :end_at
 
+    def +(other)
+      if other.is_a?(Duration) || other.is_a?(Interval)
+        self.class.new(start_at, value + other.value)
+      elsif other.is_a?(Integer)
+        self.class.new(start_at, value + other)
+      else
+        raise ArgumentError, "value must be an Integer, Duranged::Duration or Duranged::Interval"
+      end
+    end
+
+    def -(other)
+      if other.is_a?(Duration) || other.is_a?(Interval)
+        self.class.new(start_at, value - other.value)
+      elsif other.is_a?(Integer)
+        self.class.new(start_at, value - other)
+      else
+        raise ArgumentError, "value must be an Integer, Duranged::Duration or Duranged::Interval"
+      end
+    end
+
     def to_duration
       Duration.new(duration)
     end
 
     def as_json(options=nil)
       { start_at: start_at.as_json,
-        end_at: end_at.as_json }.merge(super)
+        end_at: end_at.as_json }
     end
     alias_method :to_h, :as_json
 

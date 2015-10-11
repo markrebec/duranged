@@ -159,15 +159,109 @@ RSpec.describe Duranged::Range do
     end
   end
 
+  describe '#+' do
+    context 'when passed an integer' do
+      it 'returns an instance of the same class' do
+        expect(subject + 20).to be_an_instance_of subject.class
+      end
+
+      it 'adds the integer to the value' do
+        expect((subject + 20).value).to eq (subject.value + 20)
+      end
+
+      it 'recalculates the end_at' do
+        end_at = subject.end_at.to_i
+        expect((subject + 20).end_at.to_i).to eq (end_at + 20)
+      end
+    end
+
+    context 'when passed a duration' do
+      it 'returns an instance of the same class' do
+        expect(subject + Duranged::Duration.new(20)).to be_an_instance_of subject.class
+      end
+
+      it 'adds the duration to the value' do
+        expect((subject + Duranged::Duration.new(20)).value).to eq (subject.value + 20)
+      end
+
+      it 'recalculates the end_at' do
+        end_at = subject.end_at.to_i
+        expect((subject + Duranged::Duration.new(20)).end_at.to_i).to eq (end_at + 20)
+      end
+    end
+
+    context 'when passed an interval' do
+      it 'returns an instance of the same class' do
+        expect(subject + Duranged::Interval.new(20)).to be_an_instance_of subject.class
+      end
+
+      it 'adds the interval to the value' do
+        expect((subject + Duranged::Interval.new(20)).value).to eq (subject.value + 20)
+      end
+
+      it 'recalculates the end_at' do
+        end_at = subject.end_at.to_i
+        expect((subject + Duranged::Interval.new(20)).end_at.to_i).to eq (end_at + 20)
+      end
+    end
+  end
+
+  describe '#-' do
+    context 'when passed an integer' do
+      it 'returns an instance of the same class' do
+        expect(subject - 20).to be_an_instance_of subject.class
+      end
+
+      it 'adds the integer to the value' do
+        expect((subject - 20).value).to eq (subject.value - 20)
+      end
+
+      it 'recalculates the end_at' do
+        end_at = subject.end_at.to_i
+        expect((subject - 20).end_at.to_i).to eq (end_at - 20)
+      end
+    end
+
+    context 'when passed a duration' do
+      it 'returns an instance of the same class' do
+        expect(subject - Duranged::Duration.new(20)).to be_an_instance_of subject.class
+      end
+
+      it 'adds the duration to the value' do
+        expect((subject - Duranged::Duration.new(20)).value).to eq (subject.value - 20)
+      end
+
+      it 'recalculates the end_at' do
+        end_at = subject.end_at.to_i
+        expect((subject - Duranged::Duration.new(20)).end_at.to_i).to eq (end_at - 20)
+      end
+    end
+
+    context 'when passed an interval' do
+      it 'returns an instance of the same class' do
+        expect(subject - Duranged::Interval.new(20)).to be_an_instance_of subject.class
+      end
+
+      it 'adds the interval to the value' do
+        expect((subject - Duranged::Interval.new(20)).value).to eq (subject.value - 20)
+      end
+
+      it 'recalculates the end_at' do
+        end_at = subject.end_at.to_i
+        expect((subject - Duranged::Interval.new(20)).end_at.to_i).to eq (end_at - 20)
+      end
+    end
+  end
+
   describe '#to_h' do
-    it 'returns a duration hash merged with start_at and end_at' do
-      expect(subject.to_h).to eq({days: 0, hours: 1, minutes: 0, seconds: 0, start_at: subject.start_at.as_json, end_at: subject.end_at.as_json})
+    it 'returns a hash with start_at and end_at' do
+      expect(subject.to_h).to eq({start_at: subject.start_at.as_json, end_at: subject.end_at.as_json})
     end
   end
 
   describe '#as_json' do
-    it 'returns a duration hash merged with start_at and end_at' do
-      expect(subject.as_json).to eq({days: 0, hours: 1, minutes: 0, seconds: 0, start_at: subject.start_at.as_json, end_at: subject.end_at.as_json})
+    it 'returns a hash with start_at and end_at' do
+      expect(subject.as_json).to eq({start_at: subject.start_at.as_json, end_at: subject.end_at.as_json})
     end
   end
 

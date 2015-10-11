@@ -2,6 +2,20 @@ module Duranged
   class Occurrence
     attr_reader :occurrences, :interval, :duration, :range
 
+    class << self
+      def dump(obj)
+        return if obj.nil?
+        obj.to_json
+      end
+
+      def load(json)
+        hash = JSON.load(json)
+        args = [hash['occurrences'], hash['interval'], hash['duration']]
+        args.concat [hash['range']['start_at'].to_datetime, hash['range']['end_at'].to_datetime] if hash.key?('range')
+        new(*args)
+      end
+    end
+
     def initialize(occurrences=1, interval=nil, duration=nil, range_start=nil, range_end_or_duration=nil)
       if occurrences.class <= Enumerable
         @occurrences = occurrences.count
@@ -30,9 +44,11 @@ module Duranged
     end
 
     def as_json(options=nil)
-      { occurrences: occurrences,
-        duration: duration.as_json(options),
-        interval: interval.as_json(options) }
+      hash = { occurrences: occurrences }
+      hash[:interval] = interval.as_json(options) if interval
+      hash[:duration] = duration.as_json(options) if duration
+      hash[:range] = range.as_json(options) if range
+      hash
     end
     alias_method :to_h, :as_json
 

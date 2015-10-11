@@ -44,13 +44,13 @@ RSpec.shared_examples "the base class" do |klass|
   subject { klass.new(86522.seconds) }
 
   describe 'dump' do
-    it 'dumps the value as a JSON hash' do
+    it 'dumps the value as an integer' do
       expect(klass.dump(subject)).to eq subject.to_json
     end
   end
 
   describe 'load' do
-    it 'creates a new value from a JSON hash' do
+    it 'creates a new value from the integer' do
       expect(klass.load(subject.to_json)).to be_an_instance_of klass
       expect(klass.load(subject.to_json).to_json).to eq subject.to_json
     end
@@ -104,8 +104,74 @@ RSpec.shared_examples "the base class" do |klass|
     end
   end
 
+  describe '#+' do
+    context 'when passed an integer' do
+      it 'returns an instance of the same class' do
+        expect(subject + 20).to be_an_instance_of subject.class
+      end
+
+      it 'adds the integer to the value' do
+        expect((subject + 20).value).to eq (subject.value + 20)
+      end
+    end
+
+    context 'when passed a duration' do
+      it 'returns an instance of the same class' do
+        expect(subject + Duranged::Duration.new(20)).to be_an_instance_of subject.class
+      end
+
+      it 'adds the duration to the value' do
+        expect((subject + Duranged::Duration.new(20)).value).to eq (subject.value + 20)
+      end
+    end
+
+    context 'when passed an interval' do
+      it 'returns an instance of the same class' do
+        expect(subject + Duranged::Interval.new(20)).to be_an_instance_of subject.class
+      end
+
+      it 'adds the interval to the value' do
+        expect((subject + Duranged::Interval.new(20)).value).to eq (subject.value + 20)
+      end
+    end
+  end
+
+  describe '#-' do
+    context 'when passed an integer' do
+      it 'returns an instance of the same class' do
+        expect(subject - 20).to be_an_instance_of subject.class
+      end
+
+      it 'adds the integer to the value' do
+        expect((subject - 20).value).to eq (subject.value - 20)
+      end
+    end
+
+    context 'when passed a duration' do
+      it 'returns an instance of the same class' do
+        expect(subject - Duranged::Duration.new(20)).to be_an_instance_of subject.class
+      end
+
+      it 'adds the duration to the value' do
+        expect((subject - Duranged::Duration.new(20)).value).to eq (subject.value - 20)
+      end
+    end
+
+    context 'when passed an interval' do
+      it 'returns an instance of the same class' do
+        expect(subject - Duranged::Interval.new(20)).to be_an_instance_of subject.class
+      end
+
+      it 'adds the interval to the value' do
+        expect((subject - Duranged::Interval.new(20)).value).to eq (subject.value - 20)
+      end
+    end
+  end
+
   describe '#as_json' do
-    it_behaves_like "a hash method", :as_json
+    it 'returns the value integer' do
+      expect(subject.as_json).to eq subject.value
+    end
   end
 
   describe '#to_h' do

@@ -3,6 +3,30 @@ require 'spec_helper'
 RSpec.describe Duranged::Occurrence do
   subject { Duranged::Occurrence.new(5, 36.hours) }
 
+  describe 'dump' do
+    it 'dumps the occurrence as a JSON hash' do
+      expect(Duranged::Occurrence.dump(subject)).to eq subject.to_json
+    end
+  end
+
+  describe 'load' do
+    context 'without a range' do
+      it 'creates a new occurrence from a JSON hash' do
+        expect(Duranged::Occurrence.load(subject.to_json)).to be_an_instance_of Duranged::Occurrence
+        expect(Duranged::Occurrence.load(subject.to_json).as_json).to eq subject.as_json
+      end
+    end
+
+    context 'with a range' do
+      subject { Duranged::Occurrence.new(5, 36.hours, 10.minutes, Time.now, Time.now + 3.days) }
+
+      it 'creates a new occurrence from a JSON hash' do
+        expect(Duranged::Occurrence.load(subject.to_json)).to be_an_instance_of Duranged::Occurrence
+        expect(Duranged::Occurrence.load(subject.to_json).as_json).to eq subject.as_json
+      end
+    end
+  end
+
   describe '#initialize' do
     context 'with occurrences' do
       it 'sets occurrences' do
@@ -68,8 +92,18 @@ RSpec.describe Duranged::Occurrence do
   end
 
   describe '#as_json' do
-    it 'returns a interval hash merged with occurrences' do
-      expect(subject.as_json).to eq({occurrences: subject.occurrences, duration: subject.duration.as_json, interval: subject.interval.as_json})
+    context 'without a range' do
+      it 'returns an occurrences hash' do
+        expect(subject.as_json).to eq({occurrences: subject.occurrences, duration: subject.duration.as_json, interval: subject.interval.as_json})
+      end
+    end
+
+    context 'with a range' do
+      subject { Duranged::Occurrence.new(5, 36.hours, 10.minutes, Time.now, Time.now + 3.days) }
+
+      it 'returns an occurrences hash' do
+        expect(subject.as_json).to eq({occurrences: subject.occurrences, duration: subject.duration.as_json, interval: subject.interval.as_json, range: subject.range.as_json})
+      end
     end
   end
 
