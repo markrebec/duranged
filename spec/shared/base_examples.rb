@@ -1,6 +1,6 @@
 RSpec.shared_examples "a hash method" do |method|
   it 'returns a hash of the days, hours, minutes and seconds' do
-    expect(subject.send(method)).to eq({years: 0, months: 0, weeks: 0, days: 1, hours: 0, minutes: 2, seconds: 2})
+    expect(subject.send(method)).to eq({years: 0, months: 0, weeks: 0, days_after_weeks: 1, days: 1, hours: 0, minutes: 2, seconds: 2})
   end
 end
 

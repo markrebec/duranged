@@ -3,7 +3,7 @@ module Duranged
     include Comparable
     attr_reader :value
 
-    PARTS = [:years, :months, :weeks, :days, :hours, :minutes, :seconds]
+    PARTS = [:years, :months, :weeks, :days_after_weeks, :days, :hours, :minutes, :seconds]
     FORMATTERS = { 'S' => -> (pad) { zero_pad seconds, pad },
                    's' => -> (pad) { space_pad seconds, pad },
                    'M' => -> (pad) { zero_pad minutes, pad },
@@ -12,6 +12,8 @@ module Duranged
                    'h' => -> (pad) { space_pad hours, pad },
                    'D' => -> (pad) { zero_pad days, pad },
                    'd' => -> (pad) { space_pad days, pad },
+                   'E' => -> (pad) { zero_pad days_after_weeks, pad },
+                   'e' => -> (pad) { space_pad days_after_weeks, pad },
                    'W' => -> (pad) { zero_pad weeks, pad },
                    'w' => -> (pad) { space_pad weeks, pad },
                    'N' => -> (pad) { zero_pad months, pad },
@@ -111,6 +113,23 @@ module Duranged
 
     def strfdur(format)
       str = format.to_s
+
+      # only replaces if the value is > 0, otherwise blank
+      # :years(%Y years, ):months(%N months, )%D
+      PARTS.each do |part|
+        while matches = str.match(/:#{part}(\((.+)\))/) do
+          matched = ''
+          depth = 0
+          matches[2].chars.to_a.each do |char|
+            depth += 1 if char == '('
+            depth -= 1 if char == ')'
+            break if depth == -1
+            matched += char
+          end
+          value = send(part) > 0 ? strfdur(matched.dup) : ''
+          str.gsub!(":#{part}(#{matched})", value)
+        end
+      end
 
       FORMATTERS.each do |conversion, block|
         while matches = str.match(/%(-)?([0-9]+)?(#{conversion})/) do
