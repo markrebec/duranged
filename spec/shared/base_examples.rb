@@ -7,24 +7,24 @@ end
 RSpec.shared_examples "a format conversion" do |period, formatter, printf_str|
   context "using the #{period} formatter %#{formatter}" do
     it 'returns the formatted string' do
-      expect(subject.strfdur("%#{formatter}")).to eq printf_str % subject.send("#{period}?".to_sym)
+      expect(subject.strfdur("%#{formatter}")).to eq printf_str % subject.send(period)
     end
     
     context 'with a padding modifier' do
       it 'uses the provided padding' do
-        expect(subject.strfdur("%5#{formatter}")).to eq printf_str.gsub('2','5') % subject.send("#{period}?".to_sym)
+        expect(subject.strfdur("%5#{formatter}")).to eq printf_str.gsub('2','5') % subject.send(period)
       end
 
       context 'with a padding negator' do
         it 'strips all padding' do
-          expect(subject.strfdur("%-5#{formatter}")).to eq (printf_str.gsub('2','5') % subject.send("#{period}?".to_sym)).to_i.to_s.lstrip
+          expect(subject.strfdur("%-5#{formatter}")).to eq (printf_str.gsub('2','5') % subject.send(period)).to_i.to_s.lstrip
         end
       end
     end
 
     context 'with a padding negator' do
       it 'strips all padding' do
-        expect(subject.strfdur("%-#{formatter}")).to eq (printf_str % subject.send("#{period}?".to_sym)).to_i.to_s.lstrip
+        expect(subject.strfdur("%-#{formatter}")).to eq (printf_str % subject.send(period)).to_i.to_s.lstrip
       end
     end
   end
@@ -82,25 +82,25 @@ RSpec.shared_examples "the base class" do |klass|
 
   describe '#days?' do
     it 'returns the total number of days' do
-      expect(subject.days?).to eq 1
+      expect(subject.days).to eq 1
     end
   end
 
   describe '#hours?' do
     it 'returns the remainder of hours' do
-      expect(subject.hours?).to eq 0
+      expect(subject.hours).to eq 0
     end
   end
 
   describe '#minutes?' do
     it 'returns the remainder of minutes' do
-      expect(subject.minutes?).to eq 2
+      expect(subject.minutes).to eq 2
     end
   end
 
   describe '#seconds?' do
     it 'returns the remainder of seconds' do
-      expect(subject.seconds?).to eq 2
+      expect(subject.seconds).to eq 2
     end
   end
 
