@@ -69,9 +69,9 @@ module Duranged
 
       if range.present?
         if range.same_day?
-          str << range.strfrange('on :start_at(%b. %-d %Y) between :start_at(%-l:%M%P) and :end_at(%-l:%M%P)')
+          str << range.strfrange("on :start_at(#{Duranged.configuration.formats.date}) between :start_at(#{Duranged.configuration.formats.time}) and :end_at(#{Duranged.configuration.formats.time})")
         else
-          str << range.strfrange('between :start_at(%b. %-d %Y %-l:%M%P) and :end_at(%b. %-d %Y %-l:%M%P)')
+          str << range.strfrange("between :start_at(#{Duranged.configuration.formats.date} #{Duranged.configuration.formats.time}) and :end_at(#{Duranged.configuration.formats.date} #{Duranged.configuration.formats.time})")
         end
       end
 

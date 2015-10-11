@@ -3,6 +3,7 @@ require 'active_support/core_ext/enumerable'
 require 'active_support/core_ext/object'
 require 'active_support/core_ext/numeric'
 require 'active_support/core_ext/time'
+require 'canfig'
 require 'chronic_duration'
 require 'duranged/base'
 require 'duranged/duration'
@@ -20,6 +21,13 @@ module Duranged
                   'h' => -> (pad) { space_pad hours?, pad },
                   'D' => -> (pad) { zero_pad days?, pad },
                   'd' => -> (pad) { space_pad days?, pad } }
+
+  include Canfig::Module
+
+  configure do |config|
+    config.formats = Canfig.new(date: '%b. %-d %Y', time: '%-l:%M%P')
+    config.logger = ActiveSupport::Logger.new(STDOUT)
+  end
 
   def self.interval(interval)
     Interval.new(interval)
