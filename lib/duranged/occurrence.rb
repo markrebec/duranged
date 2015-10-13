@@ -35,6 +35,15 @@ module Duranged
       end
     end
 
+    def as_json(options=nil)
+      hash = { occurrences: occurrences }
+      hash[:interval] = interval.as_json(options) if interval
+      hash[:duration] = duration.as_json(options) if duration
+      hash[:range] = range.as_json(options) if range
+      hash
+    end
+    alias_method :to_h, :as_json
+
     def occurrences_string
       case occurrences
       when 0
@@ -47,15 +56,6 @@ module Duranged
         "#{occurrences} times"
       end
     end
-
-    def as_json(options=nil)
-      hash = { occurrences: occurrences }
-      hash[:interval] = interval.as_json(options) if interval
-      hash[:duration] = duration.as_json(options) if duration
-      hash[:range] = range.as_json(options) if range
-      hash
-    end
-    alias_method :to_h, :as_json
 
     def to_s
       return occurrences_string if occurrences == 0

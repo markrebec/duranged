@@ -95,10 +95,6 @@ module Duranged
       str
     end
 
-    def call
-      to_s
-    end
-
     def same_day?
       start_at('%j') == end_at('%j')
     end
