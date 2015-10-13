@@ -49,23 +49,11 @@ module Duranged
     alias_method :end_time, :end_at
 
     def +(other)
-      if other.is_a?(Duration) || other.is_a?(Interval)
-        self.class.new(start_at, value + other.value)
-      elsif other.is_a?(Integer)
-        self.class.new(start_at, value + other)
-      else
-        raise ArgumentError, "value must be an Integer, Duranged::Duration or Duranged::Interval"
-      end
+      self.class.new(start_at, to_i + other.to_i)
     end
 
     def -(other)
-      if other.is_a?(Duration) || other.is_a?(Interval)
-        self.class.new(start_at, value - other.value)
-      elsif other.is_a?(Integer)
-        self.class.new(start_at, value - other)
-      else
-        raise ArgumentError, "value must be an Integer, Duranged::Duration or Duranged::Interval"
-      end
+      self.class.new(start_at, to_i - other.to_i)
     end
 
     def to_duration
