@@ -94,9 +94,9 @@ module Duranged
     end
 
     def to_h
-      PARTS.map do |part|
+      Hash[PARTS.map do |part|
         [part, send(part)]
-      end.to_h
+      end]
     end
 
     def to_s
