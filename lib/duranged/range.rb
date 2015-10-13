@@ -89,13 +89,8 @@ module Duranged
     def strfrange(format)
       str = format.to_s
 
-      while matches = str.match(/:(start_at|end_at|)\((([^\)]+))\)/) do
-        str.gsub!(matches[0], send(matches[1], matches[2]))
-      end
-
-      while matches = str.match(/:duration\(([^\)]+)\)/) do
-        str.gsub!(matches[0], strfdur(matches[1]))
-      end
+      str = strfstartend(str)
+      str = strfduration(str)
 
       str
     end
@@ -106,6 +101,24 @@ module Duranged
 
     def same_day?
       start_at('%j') == end_at('%j')
+    end
+
+    protected
+
+    def strfstartend(str)
+      while matches = str.match(/:(start_at|end_at|)\((([^\)]+))\)/) do
+        str.gsub!(matches[0], send(matches[1], matches[2]))
+      end
+
+      str
+    end
+
+    def strfduration(str)
+      while matches = str.match(/:duration\(([^\)]+)\)/) do
+        str.gsub!(matches[0], strfdur(matches[1]))
+      end
+
+      str
     end
   end
 end

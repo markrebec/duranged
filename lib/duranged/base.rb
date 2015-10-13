@@ -112,38 +112,10 @@ module Duranged
       str = format.to_s
 
       # :years(%Y years, ):months(%N months, )%D :days
-      PARTS.each do |part|
-        while matches = str.match(/:(#{part})(\((.+)\))?/i) do
-          if matches[3]
-            # only replaces if the value is > 0, otherwise blank
-            matched = ''
-            depth = 0
-            matches[3].chars.to_a.each do |char|
-              depth += 1 if char == '('
-              depth -= 1 if char == ')'
-              break if depth == -1
-              matched += char
-            end
-            value = send(part) > 0 ? strfdur(matched.dup) : ''
-            str.gsub!(":#{part}(#{matched})", value)
-          else
-            # if no nested format was passed, replace with a singular
-            # or plural part name as appropriate
-            value = send(part) == 1 ? matches[1].to_s.singularize : matches[1].to_s
-            str.gsub!(matches[0], value)
-          end
-        end
-      end
+      str = strfparts(str)
 
-      FORMATTERS.each do |conversion, block|
-        while matches = str.match(/%([-_])?([0-9]+)?(#{conversion})/) do
-          pad_with = matches[1] == '_' ? :space : :zero
-          value = instance_exec(matches[2] || 2, pad_with, &block)
-          value = value.to_i.to_s.lstrip if matches[1] == '-'
-
-          str.gsub!(matches[0], value)
-        end
-      end
+      # %y %M %w %d %m %s
+      str = strfformatters(str)
 
       str
     end
@@ -172,6 +144,42 @@ module Duranged
       hash.sum { |k,v| v.to_i.send(k.to_sym) }
     end
 
+    def strfparts(str)
+      PARTS.each do |part|
+        while matches = str.match(/:(#{part})(\((.+)\))?/i) do
+          if matches[3]
+            # only replaces if the value is > 0, otherwise blank
+            matched = parse_match(matches[3])
+            value = send(part) > 0 ? strfdur(matched.dup) : ''
+
+            str.gsub!(":#{part}(#{matched})", value)
+          else
+            # if no nested format was passed, replace with a singular
+            # or plural part name as appropriate
+            value = send(part) == 1 ? matches[1].to_s.singularize : matches[1].to_s
+
+            str.gsub!(matches[0], value)
+          end
+        end
+      end
+
+      str
+    end
+
+    def strfformatters(str)
+      FORMATTERS.each do |conversion, block|
+        while matches = str.match(/%([-_])?([0-9]+)?(#{conversion})/) do
+          pad_with = matches[1] == '_' ? :space : :zero
+          value = instance_exec(matches[2] || 2, pad_with, &block)
+          value = value.to_i.to_s.lstrip if matches[1] == '-'
+
+          str.gsub!(matches[0], value)
+        end
+      end
+
+      str
+    end
+
     def pad_value(value, pad=2, with=:zero)
       send("#{with}_pad".to_sym, value, pad)
     end
@@ -182,6 +190,18 @@ module Duranged
 
     def space_pad(value, pad=2)
       "%#{pad}d" % value
+    end
+
+    def parse_match(match_str)
+      match_substr = ''
+      depth = 0
+      match_str.chars.to_a.each do |char|
+        depth += 1 if char == '('
+        depth -= 1 if char == ')'
+        break if depth == -1
+        match_substr += char
+      end
+      match_substr
     end
 
     def seconds_after_years

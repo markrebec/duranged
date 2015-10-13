@@ -86,21 +86,28 @@ module Duranged
     def strfocc(format)
       str = format.to_s
 
+      str = strfoccurrences(str)
+      str = strfrange(str)
+      str = strfdurint(str)
+
+      str
+    end
+
+    protected
+
+    def strfoccurrences(str)
       while matches = str.match(/:occurrence[s]?/) do
         str.gsub!(matches[0], occurrences.to_s)
       end
-      
+
+      str
+    end
+
+    def strfrange(str)
       if range
         while matches = str.match(/:range(\((.+)\))?/) do
           if matches[2]
-            matched = ''
-            depth = 0
-            matches[2].chars.to_a.each do |char|
-              depth += 1 if char == '('
-              depth -= 1 if char == ')'
-              break if depth == -1
-              matched += char
-            end
+            matched = parse_match(matches[2])
             value = range.strfrange(matched.dup)
             str.gsub!(":range(#{matched})", value)
           else
@@ -110,6 +117,10 @@ module Duranged
         end
       end
 
+      str
+    end
+
+    def strfdurint(str)
       if duration || interval
         while matches = str.match(/:(duration|interval)(\(([^\)]+)\))/) do
           matched = send(matches[1])
@@ -119,6 +130,18 @@ module Duranged
       end
 
       str
+    end
+
+    def parse_match(match_str)
+      match_substr = ''
+      depth = 0
+      match_str.chars.to_a.each do |char|
+        depth += 1 if char == '('
+        depth -= 1 if char == ')'
+        break if depth == -1
+        match_substr += char
+      end
+      match_substr
     end
   end
 end
