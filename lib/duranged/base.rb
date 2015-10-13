@@ -148,11 +148,7 @@ module Duranged
       PARTS.each do |part|
         while matches = str.match(/:(#{part})(\((.+)\))?/i) do
           if matches[3]
-            # only replaces if the value is > 0, otherwise blank
-            matched = parse_match(matches[3])
-            value = send(part) > 0 ? strfdur(matched.dup) : ''
-
-            str.gsub!(":#{part}(#{matched})", value)
+            str = strfpart(str, part)
           else
             # if no nested format was passed, replace with a singular
             # or plural part name as appropriate
@@ -164,6 +160,13 @@ module Duranged
       end
 
       str
+    end
+
+    def strfpart(str, part)
+      matched = parse_match(str)
+      value = send(part) > 0 ? strfdur(matched.dup) : ''
+
+      str.gsub!(":#{part}(#{matched})", value)
     end
 
     def strfformatters(str)
