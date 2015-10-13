@@ -1,5 +1,11 @@
 # Duranged
 
+[![Build Status](https://travis-ci.org/markrebec/duranged.png)](https://travis-ci.org/markrebec/duranged)
+[![Coverage Status](https://coveralls.io/repos/markrebec/duranged/badge.svg)](https://coveralls.io/r/markrebec/duranged)
+[![Code Climate](https://codeclimate.com/github/markrebec/duranged.png)](https://codeclimate.com/github/markrebec/duranged)
+[![Gem Version](https://badge.fury.io/rb/duranged.png)](http://badge.fury.io/rb/duranged)
+[![Dependency Status](https://gemnasium.com/markrebec/duranged.png)](https://gemnasium.com/markrebec/duranged)
+
 A set of classes to facilitate working with and formatting durations, intervals, time ranges and occurrences.
 
 ```ruby
@@ -9,6 +15,25 @@ Duranged::range(Time.now, 30.minutes) # between now -> 30 minutes from now
 Duranged::occurrence(1, 2.days)       # once every 2 days
 ```
 
+## Getting Started
+
+Add the gem to your project's Gemfile:
+
+    gem 'duranged'
+
+Then run `bundle install`. Or install duranged system wide with `gem install duranged`.
+
+### Configuration
+
+You can configure all options using `Duranged.configure` with a block wherever is appropriate for your project (for example in a rails config initializer). Below is an example along with list of all duranged config options and their defaults.
+
+```ruby
+Duranged.configure do |config|
+  config.logger = ActiveSupport::Logger.new(STDOUT)
+  config.formats.date = '%b. %-d %Y'
+  config.formats.time = '%-l:%M%P'
+end
+```
 ## Durations / Intervals
 
 A `Duranged::Duration` or `Duranged::Interval` represents a chunk of time. Their behavior is identical, and the names are mostly just aliases for different contexts and uses. The only difference is that durations respond to `Duranged::Duration#duration` while intervals respond to `Duranged::Interval#interval`, but both are just aliases for `#value`. Most of the examples below will use a duration.
