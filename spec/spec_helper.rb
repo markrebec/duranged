@@ -1,7 +1,7 @@
-require 'duranged'
-require 'rspec'
 require 'coveralls'
 Coveralls.wear!
+require 'duranged'
+require 'rspec'
 
 Dir[File.join(File.dirname(__FILE__), '..', "spec/support/**/*.rb")].each { |f| require f }
 
