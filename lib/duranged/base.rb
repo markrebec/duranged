@@ -40,31 +40,36 @@ module Duranged
     end
 
     def months
-      ((value - years.years) / 60 / 60 / 24 / 30).floor
+      (seconds_after_years / 60 / 60 / 24 / 30).floor
     end
 
     def weeks
-      (((value - months.months - years.years) / 60 / 60 / 24).floor / 7).floor
+      ((seconds_after_months / 60 / 60 / 24).floor / 7).floor
     end
 
     def days_after_weeks
-      ((value - weeks.weeks - months.months - years.years) / 60 / 60 / 24).floor
+      (seconds_after_weeks / 60 / 60 / 24).floor
+    end
+
+    def days_after_months
+      (seconds_after_months / 60 / 60 / 24).floor
     end
 
     def days
-      ((value - months.months - years.years) / 60 / 60 / 24).floor
+      # TODO make this a configuration option with the ability to default to :days_after_weeks
+      days_after_months
     end
 
     def hours
-      ((value - days.days - months.months - years.years) / 60 / 60).floor
+      (seconds_after_days / 60 / 60).floor
     end
 
     def minutes
-      ((value - hours.hours - days.days - months.months - years.years) / 60).floor
+      (seconds_after_hours / 60).floor
     end
 
     def seconds
-      (value - minutes.minutes - hours.hours - days.days - months.months - years.years).floor
+      seconds_after_minutes.floor
     end
 
     def +(other)
@@ -177,6 +182,30 @@ module Duranged
 
     def space_pad(value, pad=2)
       "%#{pad}d" % value
+    end
+
+    def seconds_after_years
+      value - years.years
+    end
+
+    def seconds_after_months
+      seconds_after_years - months.months
+    end
+
+    def seconds_after_weeks
+      seconds_after_months - weeks.weeks
+    end
+
+    def seconds_after_days
+      seconds_after_months - days.days
+    end
+
+    def seconds_after_hours
+      seconds_after_days - hours.hours
+    end
+
+    def seconds_after_minutes
+      seconds_after_hours - minutes.minutes
     end
   end
 end
