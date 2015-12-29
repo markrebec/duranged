@@ -165,7 +165,7 @@ range.strfrange('from :start_at(%b. %-d %Y) :start_at(%-l:%M%P) to :end_at(%b. %
 
 ## Occurrences
 
-A `Duration::Occurrence` represents an event that should happen **X times**, optionally for **Y duration**, every **Z interval**. For example "**work out** for **30 minutes** every **2 days**", or "water plants **once** every **2 days**".
+A `Duration::Occurrence` represents an event that should happen **X times**, optionally for **Y duration**, every **Z interval**. For example "workout **once** for **30 minutes** every **2 days**", or "water plants **once** every **2 days**".
 
 **TODO** Document occurrences
 
