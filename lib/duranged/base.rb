@@ -66,6 +66,7 @@ module Duranged
       else
         @value = value - seconds
       end
+      self
     end
 
     def round_to_hours
@@ -79,6 +80,7 @@ module Duranged
       else
         @value = value - minutes.minutes
       end
+      self
     end
 
     protected

@@ -204,11 +204,15 @@ RSpec.shared_examples "the base class" do |klass|
   end
 
   describe '#round_to_minutes!' do
+    it 'returns self' do
+      expect(subject.round_to_minutes!).to eq subject
+    end
+
     context 'when seconds is >= 30' do
       subject { klass.new(3630.seconds) }
 
       it 'rounds up to the next minute' do
-        expect(subject.round_to_minutes!.to_i).to eq 3660
+        expect(subject.round_to_minutes!.value).to eq 3660
       end
     end
 
@@ -216,17 +220,21 @@ RSpec.shared_examples "the base class" do |klass|
       subject { klass.new(3620.seconds) }
 
       it 'rounds down to the minute' do
-        expect(subject.round_to_minutes!.to_i).to eq 3600
+        expect(subject.round_to_minutes!.value).to eq 3600
       end
     end
   end
 
   describe '#round_to_hours!' do
+    it 'returns self' do
+      expect(subject.round_to_hours!).to eq subject
+    end
+
     context 'when minutes is >= 30' do
       subject { klass.new(90.minutes) }
 
       it 'rounds up to the next hour' do
-        expect(subject.round_to_hours!.to_i).to eq 2.hours
+        expect(subject.round_to_hours!.value).to eq 2.hours
       end
     end
 
@@ -234,7 +242,7 @@ RSpec.shared_examples "the base class" do |klass|
       subject { klass.new(80.minutes) }
 
       it 'rounds down to the hour' do
-        expect(subject.round_to_hours!.to_i).to eq 1.hour
+        expect(subject.round_to_hours!.value).to eq 1.hour
       end
     end
   end
