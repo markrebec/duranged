@@ -48,8 +48,16 @@ module Duranged
       self.class.new(to_i - other.to_i)
     end
 
+    def round_to(period=:minutes)
+      dup.round_to!(period)
+    end
+
     def round_to!(period=:minutes)
       send("round_to_#{period}!")
+    end
+
+    def round_to_minutes
+      dup.round_to_minutes!
     end
 
     def round_to_minutes!
@@ -58,6 +66,10 @@ module Duranged
       else
         @value = value - seconds
       end
+    end
+
+    def round_to_hours
+      dup.round_to_hours!
     end
 
     def round_to_hours!
