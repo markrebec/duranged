@@ -180,6 +180,65 @@ RSpec.shared_examples "the base class" do |klass|
     end
   end
 
+  describe '#round_to!' do
+    context 'when passed minutes' do
+      it 'calls #round_to_minutes!' do
+        expect(subject).to receive(:round_to_minutes!)
+        subject.round_to! :minutes
+      end
+    end
+
+    context 'when passed hours' do
+      it 'calls #round_to_hours!' do
+        expect(subject).to receive(:round_to_hours!)
+        subject.round_to! :hours
+      end
+    end
+
+    context 'when not passed a period' do
+      it 'calls #round_to_minutes!' do
+        expect(subject).to receive(:round_to_minutes!)
+        subject.round_to!
+      end
+    end
+  end
+
+  describe '#round_to_minutes!' do
+    context 'when seconds is >= 30' do
+      subject { klass.new(3630.seconds) }
+
+      it 'rounds up to the next minute' do
+        expect(subject.round_to_minutes!.to_i).to eq 3660
+      end
+    end
+
+    context 'when seconds is < 30' do
+      subject { klass.new(3620.seconds) }
+
+      it 'rounds down to the minute' do
+        expect(subject.round_to_minutes!.to_i).to eq 3600
+      end
+    end
+  end
+
+  describe '#round_to_hours!' do
+    context 'when minutes is >= 30' do
+      subject { klass.new(90.minutes) }
+
+      it 'rounds up to the next hour' do
+        expect(subject.round_to_hours!.to_i).to eq 2.hours
+      end
+    end
+
+    context 'when minutes is < 30' do
+      subject { klass.new(80.minutes) }
+
+      it 'rounds down to the hour' do
+        expect(subject.round_to_hours!.to_i).to eq 1.hour
+      end
+    end
+  end
+
   describe '#as_json' do
     it 'returns the value integer' do
       expect(subject.as_json).to eq subject.value

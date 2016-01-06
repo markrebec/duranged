@@ -48,6 +48,27 @@ module Duranged
       self.class.new(to_i - other.to_i)
     end
 
+    def round_to!(period=:minutes)
+      send("round_to_#{period}!")
+    end
+
+    def round_to_minutes!
+      if seconds >= 30
+        @value = value + (60 - seconds)
+      else
+        @value = value - seconds
+      end
+    end
+
+    def round_to_hours!
+      round_to_minutes!
+      if minutes >= 30
+        @value = value + (60 - minutes).minutes
+      else
+        @value = value - minutes.minutes
+      end
+    end
+
     protected
 
     def parse_hash(hash)
